@@ -341,6 +341,7 @@ struct sub_codec {
 
 struct cs8409_spec {
 	struct hda_gen_spec gen;
+	const struct hda_codec_ops *codec_ops;
 	struct hda_codec *codec;
 
 	struct sub_codec *scodecs[CS8409_MAX_CODECS];

@@ -1396,9 +1396,8 @@ static int cs_8409_apple_init(struct hda_codec *codec)
 static int cs_8409_apple_resume(struct hda_codec *codec)
 {
         myprintk("snd_hda_intel: cs_8409_apple_resume\n");
-        // code copied from default resume patch ops
-	if (codec->patch_ops.init)
-		codec->patch_ops.init(codec);
+        // call init directly during resume
+	cs_8409_apple_init(codec);
 	snd_hda_regmap_sync(codec);
         myprintk("snd_hda_intel: end cs_8409_apple_resume\n");
         return 0;
@@ -1696,7 +1695,7 @@ void cs_8409_cs42l83_jack_unsol_event(struct hda_codec *codec, unsigned int res)
 
 // have an explict one for 8409
 // cs_free is just a definition
-//#define cs_8409_apple_free		snd_hda_gen_free
+//#define cs_8409_apple_free		snd_hda_gen_remove
 
 void cs_8409_apple_free(struct hda_codec *codec)
 {
@@ -1710,7 +1709,7 @@ void cs_8409_apple_free(struct hda_codec *codec)
 
 	//del_timer(&cs_8409_hp_timer);
 
-	snd_hda_gen_free(codec);
+	snd_hda_gen_remove(codec);
 }
 
 
@@ -1720,7 +1719,7 @@ static const struct hda_codec_ops cs_8409_apple_patch_ops = {
 	.build_controls = cs_8409_apple_build_controls,
 	.build_pcms = cs_8409_apple_build_pcms,
 	.init = cs_8409_apple_init,
-	.free = cs_8409_apple_free,
+	.remove = cs_8409_apple_free,
 	.unsol_event = cs_8409_cs42l83_jack_unsol_event,
 #ifdef CONFIG_PM
         .resume = cs_8409_apple_resume,
@@ -2588,10 +2587,10 @@ static int patch_cs8409_apple(struct hda_codec *codec)
 
         if (explicit)
                {
-               //codec->patch_ops = cs_8409_apple_patch_ops_explicit;
+               //spec->codec_ops = &cs_8409_apple_patch_ops_explicit;
                }
         else
-               codec->patch_ops = cs_8409_apple_patch_ops;
+               spec->codec_ops = &cs_8409_apple_patch_ops;
 
 
 	// not sure about these
@@ -2730,10 +2729,10 @@ static int patch_cs8409_apple(struct hda_codec *codec)
 #else
         if (explicit)
                {
-               //codec->patch_ops = cs_8409_apple_patch_ops_explicit;
+               //spec->codec_ops = &cs_8409_apple_patch_ops_explicit;
                }
         else
-               codec->patch_ops = cs_8409_apple_patch_ops;
+               spec->codec_ops = &cs_8409_apple_patch_ops;
 #endif
 
         // moved to post auto config
